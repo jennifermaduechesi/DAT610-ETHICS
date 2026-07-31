@@ -38,13 +38,15 @@ import json
 import numpy as np
 import pandas as pd
 from sdv.metadata import SingleTableMetadata
+from sdv.sampling import Condition
 from sdv.single_table import CTGANSynthesizer
 
 RANDOM_SEED = 42
 np.random.seed(RANDOM_SEED)
 
-# The lecture slide trains for 300 epochs; we keep that for fidelity.
-CTGAN_EPOCHS = 300
+# The lecture slide trains for 300 epochs; we lift it slightly to 400 for better
+# convergence on the continuous columns.
+CTGAN_EPOCHS = 400
 
 
 def build_metadata(real_df: pd.DataFrame) -> SingleTableMetadata:
@@ -113,11 +115,30 @@ def main() -> None:
     synthesizer.fit(real_df)
 
     # --- Step 3: sample the honest synthetic set -------------------------------
-    synthetic_df = synthesizer.sample(num_rows=len(real_df))
+    # First, an unconditioned draw. This documents a real CTGAN behaviour: on an
+    # imbalanced target, the default sampler over-represents the minority class,
+    # so the fraud rate comes out far above the real ~10%. We record this because
+    # it is a genuine finding for the report.
+    default_sample = synthesizer.sample(num_rows=len(real_df))
+    print(f"\nDefault (unconditioned) sample fraud rate: "
+          f"{default_sample['is_fraud'].mean() * 100:.2f}%  "
+          f"(real is {real_df['is_fraud'].mean() * 100:.2f}%)")
+
+    # Now the correct approach for a *Conditional* GAN: use conditional sampling to
+    # enforce the real class prior (same fraud/legit counts as the real data). This
+    # is the intended mechanism for controlling prevalence in an augmentation set.
+    n_fraud = int(real_df["is_fraud"].sum())
+    n_legit = len(real_df) - n_fraud
+    conditions = [
+        Condition(num_rows=n_fraud, column_values={"is_fraud": 1}),
+        Condition(num_rows=n_legit, column_values={"is_fraud": 0}),
+    ]
+    synthetic_df = synthesizer.sample_from_conditions(conditions)
+    synthetic_df = synthetic_df.sample(frac=1, random_state=RANDOM_SEED).reset_index(drop=True)
     synthetic_df.to_csv("data/synthetic_data.csv", index=False)
-    print(f"\nSaved honest synthetic data: data/synthetic_data.csv "
+    print(f"Saved honest synthetic data: data/synthetic_data.csv "
           f"({len(synthetic_df)} rows, "
-          f"{synthetic_df['is_fraud'].mean() * 100:.2f}% fraud)")
+          f"{synthetic_df['is_fraud'].mean() * 100:.2f}% fraud, conditioned to real prior)")
 
     # --- Step 4: build the corrupted twin --------------------------------------
     corrupted_df = corrupt_synthetic(synthetic_df)
