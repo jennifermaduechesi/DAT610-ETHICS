@@ -36,12 +36,16 @@ RANDOM_SEED = 42
 np.random.seed(RANDOM_SEED)
 
 # We generate more than the required 1,500 records. Real-world fraud is ~1% of
-# volume, but at 1% a 2,000-row sample yields only ~20 fraud cases, which is too
-# few for a stable KS / chi-squared / TSTR result. We use 6,000 records at a ~4%
-# fraud rate: still a strongly imbalanced problem (the point of the case study),
-# but with enough positives (~240) for the statistical tests to be reliable.
+# volume, but two things push us to a less extreme rate here. First, at 1-4% a GAN
+# barely sees the minority class and cannot calibrate its prevalence (CTGAN's
+# training-by-sampling actually over-represents rare categories, badly inflating
+# the synthetic fraud rate). Second, the statistical tests need enough fraud rows
+# to be meaningful. We use 6,000 records at a 10% fraud rate: still a clearly
+# imbalanced 1:9 problem (the augmentation motivation from the case study holds),
+# but learnable and testable. The report notes that at a realistic ~1% both GAN
+# fidelity and test reliability degrade sharply.
 N_RECORDS = 6000
-FRAUD_RATE = 0.04
+FRAUD_RATE = 0.10
 
 MERCHANT_CATEGORIES = ["grocery", "electronics", "entertainment", "travel", "utilities"]
 

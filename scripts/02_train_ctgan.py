@@ -78,15 +78,19 @@ def corrupt_synthetic(synthetic_df: pd.DataFrame) -> pd.DataFrame:
     # Wasserstein distance blows past the 0.15 threshold.
     corrupted["transaction_amount"] = corrupted["transaction_amount"] * 3.0
 
-    # Corruption 2: wrong fraud rate. Flip a batch of legitimate rows to fraud so
-    # the fraud rate jumps to ~18% (vs ~4% real). Chi-squared on is_fraud will
-    # reject, and a model trained on this learns an inflated prior.
+    # Corruption 2: wrong fraud rate. Force the fraud prevalence to a clearly wrong
+    # 40% (vs ~10% real) by flipping legitimate rows to fraud. Chi-squared on
+    # is_fraud will reject decisively, and a model trained on this learns a wildly
+    # inflated fraud prior. We drive to a fixed target rather than an increment so
+    # the corruption always lands, whatever prevalence the CTGAN output happened to
+    # have.
     rng = np.random.default_rng(RANDOM_SEED)
-    legit_idx = corrupted.index[corrupted["is_fraud"] == 0].to_numpy()
-    target_fraud = 0.18
-    n_to_flip = int(len(corrupted) * target_fraud) - int((corrupted["is_fraud"] == 1).sum())
-    n_to_flip = max(n_to_flip, 0)
-    if n_to_flip > 0 and len(legit_idx) >= n_to_flip:
+    target_fraud = 0.40
+    current_fraud = int((corrupted["is_fraud"] == 1).sum())
+    n_to_flip = int(len(corrupted) * target_fraud) - current_fraud
+    if n_to_flip > 0:
+        legit_idx = corrupted.index[corrupted["is_fraud"] == 0].to_numpy()
+        n_to_flip = min(n_to_flip, len(legit_idx))
         flip_idx = rng.choice(legit_idx, size=n_to_flip, replace=False)
         corrupted.loc[flip_idx, "is_fraud"] = 1
     return corrupted

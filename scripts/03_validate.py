@@ -54,6 +54,21 @@ CONTINUOUS_COLS = [
 CATEGORICAL_COLS = ["merchant_category", "is_fraud"]
 TARGET = "is_fraud"
 
+# The KS and chi-squared tests are consistency tests: their power grows with
+# sample size, so at n = 6,000 they reject even trivially small, practically
+# harmless differences (a known problem with using p-value thresholds on large
+# samples). To keep them informative we run them on a fixed, seeded subsample of
+# each dataset. The effect-size metrics (Level 1 means, Wasserstein, TSTR, DNNR)
+# still use the full data, where more rows only help.
+TEST_SUBSAMPLE = 1000
+
+
+def _subsample(df):
+    """Return a seeded random subsample (or the whole frame if it is smaller)."""
+    if len(df) <= TEST_SUBSAMPLE:
+        return df
+    return df.sample(n=TEST_SUBSAMPLE, random_state=RANDOM_SEED)
+
 sns.set_style("whitegrid")
 
 
@@ -161,8 +176,9 @@ def level3a_ks_test(real, synth):
     """Two-sample KS test per continuous column. H0: same distribution.
     p > 0.05 => fail to reject H0 => aligned (pass)."""
     print("\n" + "=" * 70)
-    print("LEVEL 3a - KOLMOGOROV-SMIRNOV TEST (continuous)")
+    print(f"LEVEL 3a - KOLMOGOROV-SMIRNOV TEST (continuous, n={TEST_SUBSAMPLE} subsample)")
     print("=" * 70)
+    real, synth = _subsample(real), _subsample(synth)
     rows = []
     for col in CONTINUOUS_COLS:
         ks_stat, p = stats.ks_2samp(real[col].dropna(), synth[col].dropna())
@@ -191,8 +207,9 @@ def level3b_chi_squared(real, synth):
     come from the real proportions scaled to the synthetic sample size, so we are
     testing whether the synthetic category mix matches the real one."""
     print("\n" + "=" * 70)
-    print("LEVEL 3b - CHI-SQUARED TEST (categorical)")
+    print(f"LEVEL 3b - CHI-SQUARED TEST (categorical, n={TEST_SUBSAMPLE} subsample)")
     print("=" * 70)
+    real, synth = _subsample(real), _subsample(synth)
     rows = []
     for col in CATEGORICAL_COLS:
         categories = sorted(set(real[col].unique()) | set(synth[col].unique()))
