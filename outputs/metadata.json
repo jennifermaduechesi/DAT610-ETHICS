@@ -1,0 +1,29 @@
+{
+  "METADATA_SPEC_VERSION": "SINGLE_TABLE_V1",
+  "columns": {
+    "transaction_amount": {
+      "sdtype": "numerical"
+    },
+    "customer_age": {
+      "sdtype": "numerical"
+    },
+    "account_balance": {
+      "sdtype": "numerical"
+    },
+    "num_transactions_30d": {
+      "sdtype": "numerical"
+    },
+    "transaction_hour": {
+      "sdtype": "numerical"
+    },
+    "distance_from_home_km": {
+      "sdtype": "numerical"
+    },
+    "merchant_category": {
+      "sdtype": "categorical"
+    },
+    "is_fraud": {
+      "sdtype": "categorical"
+    }
+  }
+}

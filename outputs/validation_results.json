@@ -1,0 +1,350 @@
+{
+  "dataset_sizes": {
+    "real": 6000,
+    "synthetic": 6000,
+    "corrupted": 6000
+  },
+  "fraud_rates": {
+    "real": 0.0978,
+    "synthetic": 0.0978,
+    "corrupted": 0.4
+  },
+  "honest_ctgan": {
+    "level1": {
+      "table": [
+        {
+          "feature": "transaction_amount",
+          "real_mean": 6998.79,
+          "synthetic_mean": 6161.5,
+          "pct_diff": 11.96,
+          "flag": "WARN"
+        },
+        {
+          "feature": "customer_age",
+          "real_mean": 35.28,
+          "synthetic_mean": 31.84,
+          "pct_diff": 9.74,
+          "flag": "OK"
+        },
+        {
+          "feature": "account_balance",
+          "real_mean": 95261.89,
+          "synthetic_mean": 75786.34,
+          "pct_diff": 20.44,
+          "flag": "STOP"
+        },
+        {
+          "feature": "num_transactions_30d",
+          "real_mean": 16.24,
+          "synthetic_mean": 15.98,
+          "pct_diff": 1.58,
+          "flag": "OK"
+        },
+        {
+          "feature": "transaction_hour",
+          "real_mean": 13.31,
+          "synthetic_mean": 12.89,
+          "pct_diff": 3.14,
+          "flag": "OK"
+        },
+        {
+          "feature": "distance_from_home_km",
+          "real_mean": 11.76,
+          "synthetic_mean": 15.79,
+          "pct_diff": 34.29,
+          "flag": "STOP"
+        }
+      ],
+      "worst_pct_diff": 34.29,
+      "passed": false
+    },
+    "level2": {
+      "figures": [
+        "figures/level2_kde_continuous.png",
+        "figures/level2_bar_categorical.png",
+        "figures/level2_correlation_heatmaps.png"
+      ],
+      "mean_abs_corr_error": 0.0419
+    },
+    "level3a": {
+      "table": [
+        {
+          "feature": "transaction_amount",
+          "ks_stat": 0.064,
+          "p_value": 0.0333,
+          "aligned": false
+        },
+        {
+          "feature": "customer_age",
+          "ks_stat": 0.215,
+          "p_value": 0.0,
+          "aligned": false
+        },
+        {
+          "feature": "account_balance",
+          "ks_stat": 0.163,
+          "p_value": 0.0,
+          "aligned": false
+        },
+        {
+          "feature": "num_transactions_30d",
+          "ks_stat": 0.148,
+          "p_value": 0.0,
+          "aligned": false
+        },
+        {
+          "feature": "transaction_hour",
+          "ks_stat": 0.086,
+          "p_value": 0.0012,
+          "aligned": false
+        },
+        {
+          "feature": "distance_from_home_km",
+          "ks_stat": 0.217,
+          "p_value": 0.0,
+          "aligned": false
+        }
+      ],
+      "n_pass": 0,
+      "n_total": 6,
+      "passed": false
+    },
+    "level3b": {
+      "table": [
+        {
+          "feature": "merchant_category",
+          "chi2_stat": 159.4325,
+          "p_value": 0.0,
+          "aligned": false
+        },
+        {
+          "feature": "is_fraud",
+          "chi2_stat": 0.5809,
+          "p_value": 0.446,
+          "aligned": true
+        }
+      ],
+      "n_pass": 1,
+      "n_total": 2,
+      "passed": false
+    },
+    "level3c": {
+      "table": [
+        {
+          "feature": "transaction_amount",
+          "wasserstein_norm": 0.1434,
+          "rating": "Acceptable"
+        },
+        {
+          "feature": "customer_age",
+          "wasserstein_norm": 0.3105,
+          "rating": "Poor"
+        },
+        {
+          "feature": "account_balance",
+          "wasserstein_norm": 0.3021,
+          "rating": "Poor"
+        },
+        {
+          "feature": "num_transactions_30d",
+          "wasserstein_norm": 0.1239,
+          "rating": "Acceptable"
+        },
+        {
+          "feature": "transaction_hour",
+          "wasserstein_norm": 0.1418,
+          "rating": "Acceptable"
+        },
+        {
+          "feature": "distance_from_home_km",
+          "wasserstein_norm": 0.2267,
+          "rating": "Poor"
+        }
+      ],
+      "worst_norm": 0.3105,
+      "passed": false
+    },
+    "level4": {
+      "trtr_auc": 0.9966,
+      "tstr_auc": 0.9921,
+      "auc_gap": 0.0045,
+      "verdict": "Fully equivalent",
+      "passed": true
+    },
+    "level5": {
+      "median_d_sr": 0.5875,
+      "median_d_rr": 0.6025,
+      "dnnr": 0.9751,
+      "interpretation": "Memorisation risk",
+      "passed": false
+    },
+    "overall_pass": false,
+    "n_passed": 1,
+    "n_checks": 6
+  },
+  "corrupted": {
+    "level1": {
+      "table": [
+        {
+          "feature": "transaction_amount",
+          "real_mean": 6998.79,
+          "synthetic_mean": 18484.51,
+          "pct_diff": 164.11,
+          "flag": "STOP"
+        },
+        {
+          "feature": "customer_age",
+          "real_mean": 35.28,
+          "synthetic_mean": 31.84,
+          "pct_diff": 9.74,
+          "flag": "OK"
+        },
+        {
+          "feature": "account_balance",
+          "real_mean": 95261.89,
+          "synthetic_mean": 75786.34,
+          "pct_diff": 20.44,
+          "flag": "STOP"
+        },
+        {
+          "feature": "num_transactions_30d",
+          "real_mean": 16.24,
+          "synthetic_mean": 15.98,
+          "pct_diff": 1.58,
+          "flag": "OK"
+        },
+        {
+          "feature": "transaction_hour",
+          "real_mean": 13.31,
+          "synthetic_mean": 12.89,
+          "pct_diff": 3.14,
+          "flag": "OK"
+        },
+        {
+          "feature": "distance_from_home_km",
+          "real_mean": 11.76,
+          "synthetic_mean": 15.79,
+          "pct_diff": 34.29,
+          "flag": "STOP"
+        }
+      ],
+      "worst_pct_diff": 164.11,
+      "passed": false
+    },
+    "level3a": {
+      "table": [
+        {
+          "feature": "transaction_amount",
+          "ks_stat": 0.522,
+          "p_value": 0.0,
+          "aligned": false
+        },
+        {
+          "feature": "customer_age",
+          "ks_stat": 0.215,
+          "p_value": 0.0,
+          "aligned": false
+        },
+        {
+          "feature": "account_balance",
+          "ks_stat": 0.163,
+          "p_value": 0.0,
+          "aligned": false
+        },
+        {
+          "feature": "num_transactions_30d",
+          "ks_stat": 0.148,
+          "p_value": 0.0,
+          "aligned": false
+        },
+        {
+          "feature": "transaction_hour",
+          "ks_stat": 0.086,
+          "p_value": 0.0012,
+          "aligned": false
+        },
+        {
+          "feature": "distance_from_home_km",
+          "ks_stat": 0.217,
+          "p_value": 0.0,
+          "aligned": false
+        }
+      ],
+      "n_pass": 0,
+      "n_total": 6,
+      "passed": false
+    },
+    "level3b": {
+      "table": [
+        {
+          "feature": "merchant_category",
+          "chi2_stat": 159.4325,
+          "p_value": 0.0,
+          "aligned": false
+        },
+        {
+          "feature": "is_fraud",
+          "chi2_stat": 1161.4444,
+          "p_value": 0.0,
+          "aligned": false
+        }
+      ],
+      "n_pass": 0,
+      "n_total": 2,
+      "passed": false
+    },
+    "level3c": {
+      "table": [
+        {
+          "feature": "transaction_amount",
+          "wasserstein_norm": 1.9549,
+          "rating": "Poor"
+        },
+        {
+          "feature": "customer_age",
+          "wasserstein_norm": 0.3105,
+          "rating": "Poor"
+        },
+        {
+          "feature": "account_balance",
+          "wasserstein_norm": 0.3021,
+          "rating": "Poor"
+        },
+        {
+          "feature": "num_transactions_30d",
+          "wasserstein_norm": 0.1239,
+          "rating": "Acceptable"
+        },
+        {
+          "feature": "transaction_hour",
+          "wasserstein_norm": 0.1418,
+          "rating": "Acceptable"
+        },
+        {
+          "feature": "distance_from_home_km",
+          "wasserstein_norm": 0.2267,
+          "rating": "Poor"
+        }
+      ],
+      "worst_norm": 1.9549,
+      "passed": false
+    },
+    "level4": {
+      "trtr_auc": 0.9966,
+      "tstr_auc": 0.9362,
+      "auc_gap": 0.0604,
+      "verdict": "Investigate before deployment",
+      "passed": false
+    },
+    "level5": {
+      "median_d_sr": 0.805,
+      "median_d_rr": 0.6025,
+      "dnnr": 1.336,
+      "interpretation": "Borderline",
+      "passed": false
+    },
+    "overall_pass": false,
+    "n_passed": 0,
+    "n_checks": 6
+  }
+}
