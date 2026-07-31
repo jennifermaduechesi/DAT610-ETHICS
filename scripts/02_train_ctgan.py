@@ -44,9 +44,15 @@ from sdv.single_table import CTGANSynthesizer
 RANDOM_SEED = 42
 np.random.seed(RANDOM_SEED)
 
-# The lecture slide trains for 300 epochs; we lift it slightly to 400 for better
+# The lecture slide trains for 300 epochs; we lift it to 500 for better
 # convergence on the continuous columns.
-CTGAN_EPOCHS = 400
+CTGAN_EPOCHS = 500
+
+# The two monetary columns are strongly right-skewed. GANs reproduce such columns
+# far more faithfully when they are trained in log space, so we log1p-transform
+# them before fitting and invert with expm1 after sampling. Everything downstream
+# (the saved CSV and all validation) is in the original Naira units.
+LOG_COLS = ["transaction_amount", "account_balance"]
 
 
 def build_metadata(real_df: pd.DataFrame) -> SingleTableMetadata:
@@ -102,8 +108,13 @@ def main() -> None:
     real_df = pd.read_csv("data/real_data.csv")
     print(f"Loaded real data: {real_df.shape[0]} rows, {real_df.shape[1]} columns")
 
+    # Log-transform the skewed monetary columns for training only.
+    train_df = real_df.copy()
+    for col in LOG_COLS:
+        train_df[col] = np.log1p(train_df[col])
+
     # --- Step 1: metadata ------------------------------------------------------
-    metadata = build_metadata(real_df)
+    metadata = build_metadata(train_df)
     print("\nAuto-detected & verified metadata:")
     print(json.dumps(metadata.to_dict(), indent=2))
     with open("outputs/metadata.json", "w") as fh:
@@ -112,7 +123,7 @@ def main() -> None:
     # --- Step 2: train CTGAN ---------------------------------------------------
     print(f"\nTraining CTGAN for {CTGAN_EPOCHS} epochs (this can take a few minutes)...")
     synthesizer = CTGANSynthesizer(metadata, epochs=CTGAN_EPOCHS, verbose=True)
-    synthesizer.fit(real_df)
+    synthesizer.fit(train_df)
 
     # --- Step 3: sample the honest synthetic set -------------------------------
     # First, an unconditioned draw. This documents a real CTGAN behaviour: on an
@@ -135,6 +146,11 @@ def main() -> None:
     ]
     synthetic_df = synthesizer.sample_from_conditions(conditions)
     synthetic_df = synthetic_df.sample(frac=1, random_state=RANDOM_SEED).reset_index(drop=True)
+
+    # Invert the log transform so the saved data is back in Naira.
+    for col in LOG_COLS:
+        synthetic_df[col] = np.expm1(synthetic_df[col]).clip(lower=0).round(2)
+
     synthetic_df.to_csv("data/synthetic_data.csv", index=False)
     print(f"Saved honest synthetic data: data/synthetic_data.csv "
           f"({len(synthetic_df)} rows, "
